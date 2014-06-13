@@ -12,8 +12,7 @@ install_requires = ["CherryPy>=3.3",
                     "PyYAML>=3.10",
                     "python-dateutil>=2.2"]
 
-speedup_requires = ["MarkupSafe>=0.20",
-                    "hiredis>=0.1.0",
+speedup_requires = ["hiredis>=0.1.0",
                     "simplejson>=3.4"]
 
 dev_requires = ["Sphinx>=1.2",
