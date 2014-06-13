@@ -1,28 +1,3 @@
-"""
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-BlueberryPy lightweight pluggable Web application framework command line interface
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-usage: blueberrypy [options] [COMMAND ARGS...]
-
-options:
-    -h, --help                    show this help message and exit
-    --version                     print version information and exit
-    -C <dir>, --config-dir=<dir>  path to the configuration directory
-
-
-The list of possible commands are:
-    help     print this help or a command's if an argument is given
-    create   create a project skeleton
-    console  blueberrypy REPL for experimentations
-    bundle   bundles up web assets (type 'blueberrypy help bundle' for details)
-    serve    spawn a new CherryPy server process
-
-
-See 'blueberrypy help COMMAND' for more information on a specific command.
-
-"""
-
 import logging
 import os
 import sys
@@ -169,20 +144,25 @@ def create(**kwargs):
     SQLAlchemy: {use_sqlalchemy}
 
 
-    You can install your package for development with:
+    You can now install your package for development with:
 
       $ pip install -e .
 
-    In unrestricted environments, you may also install 'MarkupSafe' and
-    'cdecimal' (only needed for py27) to speed up Jinja2 and SQLAlchemy's
-    queries on Decimal fields respectively. You may also install 'hiredis' if
-    you have opted for the Redis session storage. The following commands will
-    install all of the supported C-extension speedups.
+    You can also install all of the optional C-extension speedups with:
 
       $ pip install blueberrypy[speedups]
 
     You should also install the appropriate database driver if you have chosen
     to use SQLAlchemy.
+
+
+    Note
+    ----
+    Recent version of `pip` disallows the installation of external and
+    unverified packages by default. You can install `cdecimal` with:
+
+      $ pip install --allow-external cdecimal
+
 
     For more information, the BlueberryPy documentation is available at
     http://blueberrypy.readthedocs.org.
@@ -411,7 +391,32 @@ def console(**kwargs):
 
 
 def main():
-    args = docopt(__doc__, options_first=True)
+    """
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    BlueberryPy lightweight pluggable Web application framework command line interface
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    usage: blueberrypy [options] [COMMAND ARGS...]
+
+    options:
+        -h, --help                    show this help message and exit
+        --version                     print version information and exit
+        -C <dir>, --config-dir=<dir>  path to the configuration directory
+
+
+    The list of possible commands are:
+        help     print this help or a command's if an argument is given
+        create   create a project skeleton
+        console  blueberrypy REPL for experimentations
+        bundle   bundles up web assets (type 'blueberrypy help bundle' for details)
+        serve    spawn a new CherryPy server process
+
+
+    See 'blueberrypy help COMMAND' for more information on a specific command.
+
+    """
+
+    args = docopt(textwrap.dedent(main.__doc__), options_first=True)
     config_dir = args["--config-dir"]
     command = args["COMMAND"]
     command_args = args["ARGS"]
@@ -435,7 +440,7 @@ def main():
                 callback = globals()[command_args[0]]
                 doc = callback.__doc__
             else:
-                doc = __doc__
+                doc = main.__doc__
             logger.info(textwrap.dedent(doc))
             sys.exit(0)
         else:
