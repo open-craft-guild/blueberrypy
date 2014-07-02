@@ -48,7 +48,9 @@ class BlueberryPyConfiguration(object):
         """
 
         if config_dir is None:
-            self.config_dir = config_dir = os.path.join(os.getcwdu(), "config")
+            self.config_dir = config_dir = os.path.join(os.getcwdu()
+                                                        if getattr(os, "getcwdu", None)
+                                                        else os.getcwd(), "config")
         else:
             self.config_dir = config_dir = os.path.abspath(config_dir)
 
