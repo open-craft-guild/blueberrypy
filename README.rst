@@ -45,7 +45,7 @@ Stable version::
 
 Development version::
 
-   $ pip install https://bitbucket.org/wyuenho/blueberrypy
+   $ pip install hg+https://bitbucket.org/wyuenho/blueberrypy
 
 
 Note: You should probably install it inside a `virtualenv <http://www.virtualenv.org/>`_.
@@ -113,6 +113,10 @@ be automatically installed for you as well::
 You can install the optional speedup packages too::
 
    $ pip install blueberrypy[speedups]
+
+Or upstream
+
+   $ pip install hg+https://bitbucket.org/wyuenho/blueberrypy#egg=speedups
 
 Finally, you need to install a database driver such as `psycopg2`::
 

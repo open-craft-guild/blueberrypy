@@ -28,7 +28,7 @@ if sys.version_info < (2, 7):
     sys.exit(1)
 
 if sys.version_info < (3, 3):
-    speedup_requires.append("cdecimal>=2.3")
+    speedup_requires.append("m3-cdecimal>=2.3")
 
 readme_file = open(os.path.abspath(os.path.join(os.path.dirname(__file__), "README.rst")), "r")
 readme = readme_file.read()
