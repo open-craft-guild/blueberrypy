@@ -114,7 +114,7 @@ You can install the optional speedup packages too::
 
    $ pip install blueberrypy[speedups]
 
-Or upstream
+Or upstream::
 
    $ pip install hg+https://bitbucket.org/wyuenho/blueberrypy#egg=speedups
 
