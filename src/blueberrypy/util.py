@@ -207,7 +207,7 @@ def to_collection(from_, includes=None, excludes=None, format=None, recursive=Fa
                 result[unicode(k)] = to_collection(v, includes=includes, excludes=excludes,
                                                    recursive=recursive)
         # iterable collections, not strings
-        elif iterable(from_) and not isinstance(from_, (basestring, bytes, bytearray)):
+        elif iterable(from_) and not isinstance(from_, (str, basestring, bytes, bytearray)):
             result = [to_collection(v, includes=includes, excludes=excludes, recursive=recursive)
                       for v in from_] if recursive else list(from_)
         else:
