@@ -63,7 +63,7 @@ def _ensure_is_dict(key, inc_exc):
     if inc_exc:
         inc_exc = copy.deepcopy(inc_exc)
 
-        if isinstance(inc_exc, basestring):
+        if isinstance(inc_exc, (str, basestring)):
             inc_exc = {key: set([inc_exc])}
         elif isinstance(inc_exc, (list, tuple, set, frozenset)):
             inc_exc = {key: set(iter(inc_exc))}
@@ -290,7 +290,10 @@ def from_collection(from_, to_, excludes=None, format=None, collection_handling=
 
     excludes = _ensure_is_dict(to_.__class__, excludes)
 
-    if isinstance(from_, dict):
+    if to_ is None:
+        if from_ is not None:
+            to_ = from_
+    elif isinstance(from_, dict):
         if isinstance(to_, dict):
             for k in to_.viewkeys():
                 if k in from_:
@@ -358,9 +361,9 @@ def from_collection(from_, to_, excludes=None, format=None, collection_handling=
             elif geos_support and "type" in from_:
                 to_ = from_shape(as_shape(from_))
 
-    elif iterable(from_) and not isinstance(from_, (basestring, bytes, bytearray)):
+    elif iterable(from_) and not isinstance(from_, (str, basestring, bytes, bytearray)):
 
-        if not iterable(to_) or isinstance(to_, (basestring, bytes, bytearray)):
+        if not iterable(to_) or isinstance(to_, (str, basestring, bytes, bytearray)):
             raise TypeError("to_ must be an non-scalar sequence because from_ is.")
 
         elif len(from_) != len(to_):
