@@ -122,12 +122,26 @@ class BlueberryPyConfiguration(object):
         if app_config:
             self._app_config = dict(app_config)
 
+        def merge_dicts(app, env):
+            '''Recursive helper for merging of two dicts'''
+            for k in env.keys():
+                if k in self._app_config:
+                    if isinstance(app[k], dict) and isinstance(env[k], dict):
+                        app[k] = merge_dicts(app[k], env[k])
+                    elif isinstance(env[k], list) and \
+                            not isinstance(app[k], list):
+                        app[k] = [app[k]] + env[k]
+                    elif isinstance(app[k], list) and \
+                            not isinstance(env[k], list):
+                        app[k] = app[k] + [env[k]]
+                    else:
+                        app[k].update(env[k])
+                else:
+                    app[k] = env[k]
+            return app
+
         # Merge JSON from environment variable
-        for k in ENV_CONFIG.keys():
-            if k in self._app_config:
-                self._app_config[k].update(ENV_CONFIG[k])
-            else:
-                self._app_config[k] = ENV_CONFIG[k]
+        self._app_config = merge_dicts(self._app_config, ENV_CONFIG)
 
         # Convert relative paths to absolute where needed
         try:
