@@ -4,6 +4,7 @@ import inspect
 import logging
 import os.path
 import warnings
+import os
 
 import cherrypy
 
@@ -12,6 +13,20 @@ try:
     from yaml import CLoader as Loader
 except ImportError:
     from yaml import Loader
+
+try:
+    import ujson as json
+except ImportError:
+    try:
+        import yajl as json
+    except ImportError:
+        try:
+            import simplejson as json
+        except ImportError:
+            try:
+                import cjson as json
+            except ImportError:
+                import json
 
 from blueberrypy.email import Mailer
 from blueberrypy.exc import (BlueberryPyNotConfiguredError,
@@ -24,7 +39,7 @@ logger = logging.getLogger(__name__)
 class BlueberryPyConfiguration(object):
 
     def __init__(self, config_dir=None, app_config=None, logging_config=None,
-                 webassets_env=None, environment=None):
+                 webassets_env=None, environment=None, env_var_name=None):
         """Loads BlueberryPy configuration from `config_dir` if supplied.
 
         If `app_config` or `logging_config` or `webassets_env` are given, they
@@ -34,6 +49,9 @@ class BlueberryPyConfiguration(object):
         If `environment` is `production`, and `config_dir` is given, the `prod`
         subdirectory will be searched for configuration files, otherwise the
         `dev` subdirectory` will be searched.
+
+        If `env_var_name` is given, it must be an existing environment
+        variable, it will override values from YAML config.
 
         Upon initialization of this configuration object, all the configuration
         will be validated for sanity and either BlueberryPyConfigurationError or
@@ -45,12 +63,24 @@ class BlueberryPyConfiguration(object):
         :arg logging_config: a logging config, dict
         :arg webassets_env: a webassets environment, webassets.Environment
         :arg environment: a CherryPy configuration environment, str
+        :arg env_var_name: an environment variable name for configuration, str
         """
 
+        ENV_CONFIG = {}
+        try:
+            ENV_CONFIG = json.loads(os.getenv(env_var_name))
+        except json.JSONDecodeError:
+            print('${} is not a valid JSON string!'.format(env_var_name))
+
+        CWD = os.getcwdu() if getattr(os, "getcwdu", None) else os.getcwd()
+
+        if ENV_CONFIG.get('global') and ENV_CONFIG['global'].get('CWD') and \
+                os.path.isdir(
+                    os.path.join(ENV_CONFIG['global']['CWD'], 'src')):
+            CWD = ENV_CONFIG['global']['CWD']
+
         if config_dir is None:
-            self.config_dir = config_dir = os.path.join(os.getcwdu()
-                                                        if getattr(os, "getcwdu", None)
-                                                        else os.getcwd(), "config")
+            self.config_dir = config_dir = os.path.join(CWD, "config")
         else:
             self.config_dir = config_dir = os.path.abspath(config_dir)
 
@@ -91,6 +121,28 @@ class BlueberryPyConfiguration(object):
 
         if app_config:
             self._app_config = dict(app_config)
+
+        # Merge JSON from environment variable
+        for k in ENV_CONFIG.keys():
+            if k in self._app_config:
+                self._app_config[k].update(ENV_CONFIG[k])
+            else:
+                self._app_config[k] = ENV_CONFIG[k]
+
+        # Convert relative paths to absolute where needed
+        try:
+            for _ in self._app_config['controllers']:
+                section = self._app_config['controllers'][_]
+                for r in section:
+                    if isinstance(section[r], dict):
+                        for __ in ['tools.staticdir.root',
+                                   'tools.staticfile.root']:
+                            pth = section[r].get(__)
+                            if pth is not None and not pth.startswith('/'):
+                                self._app_config['controllers'][_][r][__] = \
+                                    os.path.join(CWD, pth)
+        except:
+            pass
 
         if logging_config:
             self._logging_config = dict(logging_config)
@@ -249,8 +301,8 @@ class BlueberryPyConfiguration(object):
 
         if self.use_logging and not self.logging_config:
             warnings.warn("BlueberryPy application-specific logging "
-                        "configuration not found. Continuing without "
-                        "BlueberryPy's logging plugin.")
+                          "configuration not found. Continuing without "
+                          "BlueberryPy's logging plugin.")
 
         if self.use_email:
             if not self.email_config:

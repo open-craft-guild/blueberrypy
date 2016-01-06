@@ -224,6 +224,8 @@ def serve(**kwargs):
       -b BINDING, --bind BINDING                 the address and port to bind to.
                                                  [default: 127.0.0.1:8080]
       -e ENVIRONMENT, --environment ENVIRONMENT  apply the given config environment
+      -C ENV_VAR_NAME, --env-var ENV_VAR_NAME    add the given config from environment variable name
+                                                 [default: BLUEBERRYPY_CONFIG]
       -f                                         start a fastcgi server instead of the default HTTP
                                                  server
       -s                                         start a scgi server instead of the default HTTP
@@ -238,13 +240,15 @@ def serve(**kwargs):
 
     """
 
-    config = BlueberryPyConfiguration(config_dir=kwargs.get("config_dir"))
+    config = BlueberryPyConfiguration(config_dir=kwargs.get("config_dir"),
+                                      env_var_name=kwargs.get('env_var'))
 
     cpengine = cherrypy.engine
 
     cpenviron = kwargs.get("environment")
     if cpenviron:
         config = BlueberryPyConfiguration(config_dir=kwargs.get("config_dir"),
+                                          env_var_name=kwargs.get('env_var'),
                                           environment=cpenviron)
         cherrypy.config.update({"environment": cpenviron})
 
