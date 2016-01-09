@@ -71,6 +71,8 @@ class BlueberryPyConfiguration(object):
             ENV_CONFIG = json.loads(os.getenv(env_var_name))
         except json.JSONDecodeError:
             print('${} is not a valid JSON string!'.format(env_var_name))
+        except TypeError:
+            print('${} environment variable is not set!'.format(env_var_name))
 
         CWD = os.getcwdu() if getattr(os, "getcwdu", None) else os.getcwd()
 
