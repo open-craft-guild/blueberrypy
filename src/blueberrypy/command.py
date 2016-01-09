@@ -185,15 +185,20 @@ def bundle(**kwargs):
     provided a configuration directory using the global option -c --config_dir.
 
     options:
-      -h, --help   show this help message and exit
-      -b, --build  build the asset bundles
-      -w, --watch  automatically rebuild the asset bundles upon changes in the
-                   static directory
-      -c, --clean  delete the generated asset bundles
+      -h, --help                                show this help message and exit
+      -C ENV_VAR_NAME, --env-var ENV_VAR_NAME   add the given config from
+                                                environment variable name
+                                                [default: BLUEBERRYPY_CONFIG]
+      -b, --build                               build the asset bundles
+      -w, --watch                               automatically rebuild the
+                                                asset bundles upon changes in
+                                                the static directory
+      -c, --clean                               delete the generated asset bundles
 
     """
 
-    config = BlueberryPyConfiguration(config_dir=kwargs.get("config_dir"))
+    config = BlueberryPyConfiguration(config_dir=kwargs.get('config_dir'),
+                                      env_var_name=kwargs.get('env_var'))
 
     assets_env = config.webassets_env
     if not assets_env:
@@ -240,14 +245,14 @@ def serve(**kwargs):
 
     """
 
-    config = BlueberryPyConfiguration(config_dir=kwargs.get("config_dir"),
+    config = BlueberryPyConfiguration(config_dir=kwargs.get('config_dir'),
                                       env_var_name=kwargs.get('env_var'))
 
     cpengine = cherrypy.engine
 
     cpenviron = kwargs.get("environment")
     if cpenviron:
-        config = BlueberryPyConfiguration(config_dir=kwargs.get("config_dir"),
+        config = BlueberryPyConfiguration(config_dir=kwargs.get('config_dir'),
                                           env_var_name=kwargs.get('env_var'),
                                           environment=cpenviron)
         cherrypy.config.update({"environment": cpenviron})
@@ -376,6 +381,8 @@ def console(**kwargs):
 
     options:
         -e ENVIRONMENT, --environment=ENVIRONMENT  apply the given config environment
+        -C ENV_VAR_NAME, --env-var ENV_VAR_NAME    add the given config from environment variable name
+                                                   [default: BLUEBERRYPY_CONFIG]
         -h, --help                                 show this help message and exit
 
     """
@@ -390,8 +397,11 @@ def console(**kwargs):
     environment = kwargs.get("environment")
     config_dir = kwargs.get("config_dir")
     environment and cherrypy.config.update({"environment": environment})
-    Console(BlueberryPyConfiguration(config_dir=config_dir,
-                                     environment=environment)).interact(banner)
+    Console(
+        BlueberryPyConfiguration(config_dir=config_dir,
+                                 environment=environment,
+                                 env_var_name=kwargs.get('env_var')
+                                 )).interact(banner)
 
 
 def main():
