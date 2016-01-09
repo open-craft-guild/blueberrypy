@@ -5,6 +5,7 @@ import logging
 import os.path
 import warnings
 import os
+import importlib
 
 import cherrypy
 
@@ -14,19 +15,14 @@ try:
 except ImportError:
     from yaml import Loader
 
-try:
-    import ujson as json
-except ImportError:
+json = None
+for pkg in ['ujson', 'yajl', 'simplejson', 'cjson', 'json']:
     try:
-        import yajl as json
-    except ImportError:
-        try:
-            import simplejson as json
-        except ImportError:
-            try:
-                import cjson as json
-            except ImportError:
-                import json
+        json = importlib.import_module(pkg)
+    except:
+        pass
+    else:
+        break
 
 from blueberrypy.email import Mailer
 from blueberrypy.exc import (BlueberryPyNotConfiguredError,
