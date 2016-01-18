@@ -35,7 +35,8 @@ logger = logging.getLogger(__name__)
 class BlueberryPyConfiguration(object):
 
     def __init__(self, config_dir=None, app_config=None, logging_config=None,
-                 webassets_env=None, environment=None, env_var_name=None):
+                 webassets_env=None, environment=None,
+                 env_var_name='BLUEBERRYPY_CONFIG'):
         """Loads BlueberryPy configuration from `config_dir` if supplied.
 
         If `app_config` or `logging_config` or `webassets_env` are given, they
