@@ -132,7 +132,7 @@ class BlueberryPyConfiguration(object):
         def merge_dicts(app, env):
             '''Recursive helper for merging of two dicts'''
             for k in env.keys():
-                if k in self._app_config:
+                if k in app:
                     if isinstance(app[k], dict) and isinstance(env[k], dict):
                         app[k] = merge_dicts(app[k], env[k])
                     elif isinstance(env[k], list) and \
@@ -141,6 +141,8 @@ class BlueberryPyConfiguration(object):
                     elif isinstance(app[k], list) and \
                             not isinstance(env[k], list):
                         app[k] = app[k] + [env[k]]
+                    elif not isinstance(app[k], dict):
+                        app[k] = env[k]
                     else:
                         app[k].update(env[k])
                 else:
