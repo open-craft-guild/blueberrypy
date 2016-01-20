@@ -19,7 +19,7 @@ class ControllerTestCase(CPWebCase):
     @staticmethod
     def setup_server():
 
-        config = BlueberryPyConfiguration(**testconfig)
+        config = BlueberryPyConfiguration(app_config=testconfig)
 
         if config.use_email and config.email_config:
             email.configure(config.email_config)
