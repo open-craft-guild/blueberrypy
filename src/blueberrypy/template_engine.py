@@ -13,6 +13,7 @@ def configure_jinja2(assets_env=None, **kwargs):
 
     autoescape = kwargs.pop("autoescape", False)
     extensions = kwargs.pop("extensions", [])
+    global_functions = kwargs.pop("globals", None)
 
     if assets_env:
         from webassets.ext.jinja2 import AssetsExtension
@@ -27,6 +28,9 @@ def configure_jinja2(assets_env=None, **kwargs):
 
     if assets_env:
         jinja2_env.assets_environment = assets_env
+
+    if global_functions:
+        jinja2_env.globals.update(global_functions)
 
     return jinja2_env
 
