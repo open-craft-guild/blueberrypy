@@ -63,21 +63,7 @@ class BlueberryPyConfiguration(object):
         :arg env_var_name: an environment variable name for configuration, str
         """
 
-        ENV_CONFIG = {}
-        try:
-            ENV_CONFIG = json.loads(os.getenv(env_var_name))
-        except ValueError:
-            # Don't use simplejson.JSONDecodeError, since it only exists in
-            # simplejson implementation and is a subclass of ValueError
-            # See: https://github.com/Yelp/mrjob/issues/544
-            logger.error('${} is not a valid JSON string!'
-                         .format(env_var_name))
-        except TypeError:
-            logger.error('${} environment variable is not set!'
-                         .format(env_var_name))
-        except:
-            logger.exception('Could not parse ${} environment variable for an '
-                         'unknown reason!'.format(env_var_name))
+        ENV_CONFIG = self.__class__._load_env_var(env_var_name)
 
         CWD = os.getcwdu() if getattr(os, "getcwdu", None) else os.getcwd()
 
@@ -129,28 +115,8 @@ class BlueberryPyConfiguration(object):
         if app_config:
             self._app_config = dict(app_config)
 
-        def merge_dicts(app, env):
-            '''Recursive helper for merging of two dicts'''
-            for k in env.keys():
-                if k in app:
-                    if isinstance(app[k], dict) and isinstance(env[k], dict):
-                        app[k] = merge_dicts(app[k], env[k])
-                    elif isinstance(env[k], list) and \
-                            not isinstance(app[k], list):
-                        app[k] = [app[k]] + env[k]
-                    elif isinstance(app[k], list) and \
-                            not isinstance(env[k], list):
-                        app[k] = app[k] + [env[k]]
-                    elif not isinstance(app[k], dict):
-                        app[k] = env[k]
-                    else:
-                        app[k].update(env[k])
-                else:
-                    app[k] = env[k]
-            return app
-
         # Merge JSON from environment variable
-        self._app_config = merge_dicts(self._app_config, ENV_CONFIG)
+        self._app_config = self.__class__.merge_dicts(self._app_config, ENV_CONFIG)
 
         # Convert relative paths to absolute where needed
         try:
@@ -360,3 +326,65 @@ class BlueberryPyConfiguration(object):
                             break
                     else:
                         warnings.warn("Controller %r has no exposed method." % script_name)
+
+    @classmethod
+    def _load_env_var(cls, env_var_name):
+        env_conf = {}
+        try:
+            env_conf = json.loads(os.getenv(env_var_name),
+                                  object_hook=cls._callable_json_loader)
+        except ValueError:
+            # Don't use simplejson.JSONDecodeError, since it only exists in
+            # simplejson implementation and is a subclass of ValueError
+            # See: https://github.com/Yelp/mrjob/issues/544
+            logger.error('${} is not a valid JSON string!'
+                         .format(env_var_name))
+        except TypeError:
+            logger.error('${} environment variable is not set!'
+                         .format(env_var_name))
+        except:
+            logger.exception('Could not parse ${} environment variable for an '
+                             'unknown reason!'.format(env_var_name))
+        return env_conf
+
+    @staticmethod
+    def get_callable_from_str(s):
+        python_module, python_name = s.rsplit('.', 1)
+        return getattr(importlib.import_module(python_module), python_name)
+
+    @classmethod
+    def _callable_json_loader(cls, obj):
+        if isinstance(obj, str):
+            if obj.startswith('!!python/name:'):
+                cllbl = cls.get_callable_from_str(obj.split(':', 1)[-1])
+                return cllbl if callable(cllbl) else obj
+
+        if isinstance(obj, dict):
+            keys = tuple(filter(lambda _: _.startswith('!!python/object:'),
+                                obj.keys()))
+            for k in keys:
+                cllbl = cls.get_callable_from_str(k.split(':', 1)[-1])
+                return cllbl(**obj[k]) if callable(cllbl) else obj
+
+        return obj
+
+    @classmethod
+    def merge_dicts(cls, app, env):
+        '''Recursive helper for merging of two dicts'''
+        for k in env.keys():
+            if k in app:
+                if isinstance(app[k], dict) and isinstance(env[k], dict):
+                    app[k] = cls.merge_dicts(app[k], env[k])
+                elif isinstance(env[k], list) and \
+                        not isinstance(app[k], list):
+                    app[k] = [app[k]] + env[k]
+                elif isinstance(app[k], list) and \
+                        not isinstance(env[k], list):
+                    app[k] = app[k] + [env[k]]
+                elif not isinstance(app[k], dict):
+                    app[k] = env[k]
+                else:
+                    app[k].update(env[k])
+            else:
+                app[k] = env[k]
+        return app
