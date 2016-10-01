@@ -5,6 +5,11 @@ import warnings
 
 from functools import partial
 from StringIO import StringIO
+try:
+    from unittest import mock
+except ImportError:
+    # fallback for old python
+    import mock
 
 from jinja2.loaders import DictLoader
 from webassets import Environment
@@ -33,6 +38,30 @@ rest_controller = cherrypy.dispatch.RoutesDispatcher()
 rest_controller.connect("dummy", "/dummy", DummyRestController, action="dummy")
 
 
+def get_dummy_exists(paths):
+    from os.path import exists as real_exists
+    def proxied_exists(path):
+        if path in paths:
+            return True
+        return real_exists(path)
+    return proxied_exists
+
+
+def get_dummy_open(config):
+    class FakeFile(StringIO):
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type=None, exc_value=None, traceback=None):
+            return False
+    real_open = builtins.open
+    def proxied_open(filename, mode='r', buffering=1):
+        if filename in config:
+            return FakeFile(*config[filename])
+        return real_open(filename, mode, buffering)
+    return proxied_open
+
+
 class BlueberryPyConfigurationTest(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         self.assertRaisesRegex = getattr(self, "assertRaisesRegex",
@@ -55,61 +84,34 @@ class BlueberryPyConfigurationTest(unittest.TestCase):
             "BlueberryPy application configuration not found."):
                 BlueberryPyConfiguration()
 
+    @mock.patch('os.path.exists', get_dummy_exists([
+        '/tmp/dev/app.yml', '/tmp/dev/bundles.yml', '/tmp/dev/logging.yml',
+    ]))
+    @mock.patch('builtins.open', get_dummy_open({
+        '/tmp/dev/app.yml': [
+            textwrap.dedent("""
+            controllers: []
+            """),
+        ],
+        '/tmp/dev/bundles.yml': [
+            textwrap.dedent("""
+            directory: /tmp
+            url: /
+            """),
+        ],
+        '/tmp/dev/logging.yml': [],
+    }))
+    @mock.patch(
+        'blueberrypy.config.BlueberryPyConfiguration.validate', 
+        lambda self: None,
+    )
     def test_config_file_paths(self):
-        # stub out os.path.exists
-        import os.path
-        old_exists = os.path.exists
-
-        def proxied_exists(path):
-            if path == "/tmp/dev/app.yml":
-                return True
-            elif path == "/tmp/dev/bundles.yml":
-                return True
-            elif path == "/tmp/dev/logging.yml":
-                return True
-            return old_exists(path)
-        os.path.exists = proxied_exists
-        old_open = builtins.open
-
-        # stub out open
-        class FakeFile(StringIO):
-            def __enter__(self):
-                return self
-
-            def __exit__(self, exc_type=None, exc_value=None, traceback=None):
-                return False
-
-        def proxied_open(filename, mode='r', buffering=1):
-            if filename == "/tmp/dev/app.yml":
-                return FakeFile(textwrap.dedent("""
-                controllers: []
-                """))
-            elif filename == "/tmp/dev/bundles.yml":
-                return FakeFile(textwrap.dedent("""
-                directory: /tmp
-                url: /
-                """))
-            elif filename == "/tmp/dev/logging.yml":
-                return FakeFile()
-            else:
-                return old_open(filename, mode, buffering)
-        builtins.open = proxied_open
-
-        # stub out validate()
-        old_validate = BlueberryPyConfiguration.validate
-        BlueberryPyConfiguration.validate = lambda self: None
-
-        try:
-            config = BlueberryPyConfiguration(config_dir="/tmp")
-            config_file_paths = config.config_file_paths
-            self.assertEqual(len(config_file_paths), 3)
-            self.assertEqual(config_file_paths[0], "/tmp/dev/app.yml")
-            self.assertEqual(config_file_paths[1], "/tmp/dev/bundles.yml")
-            self.assertEqual(config_file_paths[2], "/tmp/dev/logging.yml")
-        finally:
-            BlueberryPyConfiguration.validate = old_validate
-            os.path.exists = old_exists
-            builtins.open = old_open
+        config = BlueberryPyConfiguration(config_dir="/tmp")
+        config_file_paths = config.config_file_paths
+        self.assertEqual(len(config_file_paths), 3)
+        self.assertEqual(config_file_paths[0], "/tmp/dev/app.yml")
+        self.assertEqual(config_file_paths[1], "/tmp/dev/bundles.yml")
+        self.assertEqual(config_file_paths[2], "/tmp/dev/logging.yml")
 
     def test_use_email(self):
         app_config = self.basic_valid_app_config.copy()
@@ -282,3 +284,32 @@ class BlueberryPyConfigurationTest(unittest.TestCase):
         rest_controller.connect("dummy", "/dummy", DummyRestController, action="dummy")
         app_config = {"controllers": {"/api": {"controller": rest_controller}}}
         config = BlueberryPyConfiguration(app_config=app_config)
+
+    @mock.patch('os.path.exists', get_dummy_exists([
+        '/tmp/dev/app.yml', '/tmp/dev/bundles.yml', '/tmp/dev/logging.yml',
+        '/tmp/dev/app.override.yml',
+    ]))
+    @mock.patch('builtins.open', get_dummy_open({
+        '/tmp/dev/app.yml': [
+            textwrap.dedent("""
+            controllers: []
+            value1: value1
+            value2: value2
+            """),
+        ],
+        '/tmp/dev/app.override.yml': [
+            textwrap.dedent("""
+            value1: new value1
+            """),
+        ],
+        '/tmp/dev/bundles.yml': [],
+        '/tmp/dev/logging.yml': [],
+    }))
+    @mock.patch(
+        'blueberrypy.config.BlueberryPyConfiguration.validate', 
+        lambda self: None,
+    )
+    def test_config_overrides_file(self):
+        config = BlueberryPyConfiguration(config_dir="/tmp")
+        self.assertEqual('new value1', config.app_config['value1'])
+        self.assertEqual('value2', config.app_config['value2'])

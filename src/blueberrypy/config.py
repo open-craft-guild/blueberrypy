@@ -89,6 +89,9 @@ class BlueberryPyConfiguration(object):
         logging_yml_path = os.path.join(config_dir, "logging.yml")
         bundles_yml_path = os.path.join(config_dir, "bundles.yml")
 
+        # A local-only config, which overrides the app.yml values
+        app_override_yml_path = os.path.join(config_dir, "app.override.yml")
+
         if os.path.exists(app_yml_path):
             config_file_paths["app_yml"] = app_yml_path
 
@@ -98,11 +101,26 @@ class BlueberryPyConfiguration(object):
         if os.path.exists(bundles_yml_path):
             config_file_paths["bundles_yml"] = bundles_yml_path
 
+        if os.path.exists(app_override_yml_path):
+            config_file_paths["app_override_yml"] = app_override_yml_path
+
         self._config_file_paths = config_file_paths
 
         if "app_yml" in config_file_paths and not app_config:
             with open(config_file_paths["app_yml"]) as app_yml:
                 self._app_config = load(app_yml, Loader)
+
+            # If the overrides file exists, override the app config values
+            # with ones from app.override.yml
+            if "app_override_yml" in config_file_paths:
+                app_override_config = {}
+                with open(config_file_paths["app_override_yml"]) as app_override_yml:
+                    app_override_config = load(app_override_yml, Loader)
+
+                self._app_config = self.__class__.merge_dicts(
+                    self._app_config, 
+                    app_override_config
+                )
 
         if "logging_yml" in config_file_paths and not logging_config:
             with open(config_file_paths["logging_yml"]) as logging_yml:
@@ -372,22 +390,22 @@ class BlueberryPyConfiguration(object):
         return obj
 
     @classmethod
-    def merge_dicts(cls, app, env):
+    def merge_dicts(cls, base, overrides):
         '''Recursive helper for merging of two dicts'''
-        for k in env.keys():
-            if k in app:
-                if isinstance(app[k], dict) and isinstance(env[k], dict):
-                    app[k] = cls.merge_dicts(app[k], env[k])
-                elif isinstance(env[k], list) and \
-                        not isinstance(app[k], list):
-                    app[k] = [app[k]] + env[k]
-                elif isinstance(app[k], list) and \
-                        not isinstance(env[k], list):
-                    app[k] = app[k] + [env[k]]
-                elif not isinstance(app[k], dict):
-                    app[k] = env[k]
+        for k in overrides.keys():
+            if k in base:
+                if isinstance(base[k], dict) and isinstance(overrides[k], dict):
+                    base[k] = cls.merge_dicts(base[k], overrides[k])
+                elif isinstance(overrides[k], list) and \
+                        not isinstance(base[k], list):
+                    base[k] = [base[k]] + overrides[k]
+                elif isinstance(base[k], list) and \
+                        not isinstance(overrides[k], list):
+                    base[k] = base[k] + [overrides[k]]
+                elif not isinstance(base[k], dict):
+                    base[k] = overrides[k]
                 else:
-                    app[k].update(env[k])
+                    base[k].update(overrides[k])
             else:
-                app[k] = env[k]
-        return app
+                base[k] = overrides[k]
+        return base
