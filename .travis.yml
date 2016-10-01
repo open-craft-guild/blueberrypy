@@ -2,7 +2,9 @@ language: python
 
 python:
   - 2.7
+  - 3.3
   - 3.4
+  - 3.5
 
 addons:
   postgresql: 9.3
@@ -11,16 +13,15 @@ services:
   - redis-server
 
 install:
-  - pip install --no-use-wheel -e .
-  - pip install --allow-external cdecimal --no-use-wheel blueberrypy[all,speedups,dev]
-
-before_script:
+  - pip install --allow-external cdecimal --no-use-wheel -e .[all,speedups,dev]
   - psql --command="CREATE ROLE tester PASSWORD 'tester' INHERIT LOGIN;" --username=postgres
   - createdb --encoding=UTF-8 --username=postgres --owner=tester test_blueberrypy
   - psql --command='CREATE EXTENSION postgis;' --dbname=test_blueberrypy --username=postgres
   - psql --command='CREATE EXTENSION postgis_topology;' --dbname=test_blueberrypy --username=postgres
 
-script: tox
+before_script: export TOX_PY_VERSION="py$(echo $TRAVIS_PYTHON_VERSION | sed 's/\.//g')"
+
+script: tox -e "${TOX_PY_VERSION}"
 
 notifications:
-  email: false
+  email: true
