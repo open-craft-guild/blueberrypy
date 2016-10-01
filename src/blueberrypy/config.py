@@ -318,8 +318,12 @@ class BlueberryPyConfiguration(object):
             if not self.email_config:
                 warnings.warn("BlueberryPy email configuration is empty.")
             else:
-                mailer_ctor_argspec = inspect.getargspec(Mailer.__init__)
-                argnames = frozenset(mailer_ctor_argspec.args[1:])
+                try:
+                    signature = inspect.signature(Mailer.__init__)
+                    argnames = frozenset(signature.parameters.keys()[1:])
+                except AttributeError:
+                    mailer_ctor_argspec = inspect.getargspec(Mailer.__init__)
+                    argnames = frozenset(mailer_ctor_argspec.args[1:])
                 for key in self.email_config.viewkeys():
                     if key not in argnames:
                         closest_match = difflib.get_close_matches(key, argnames, 1)
