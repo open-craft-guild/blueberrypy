@@ -2,6 +2,8 @@ import __builtin__ as builtins
 import textwrap
 import unittest
 import warnings
+
+from functools import partial
 from StringIO import StringIO
 
 from jinja2.loaders import DictLoader
@@ -32,6 +34,15 @@ rest_controller.connect("dummy", "/dummy", DummyRestController, action="dummy")
 
 
 class BlueberryPyConfigurationTest(unittest.TestCase):
+    def __init__(self, *args, **kwargs):
+        self.assertRaisesRegex = getattr(self, "assertRaisesRegex",
+                                         # Fallback to Python < 3.2 name:
+                                         getattr(self, "assertRaisesRegexp"))
+        self.assertRaisesUserWarningRegex = partial(self.assertRaisesRegex,
+                                                    UserWarning)
+        self.assertRaisesUserWarningRegex.__doc__ = (self.assertRaisesRegex.
+                                                     __doc__)
+        super(BlueberryPyConfigurationTest, self).__init__(*args, **kwargs)
 
     def setUp(self):
         self.basic_valid_app_config = {"controllers": {'': {"controller": Root},
@@ -103,22 +114,17 @@ class BlueberryPyConfigurationTest(unittest.TestCase):
 
         with warnings.catch_warnings(record=True):
             warnings.simplefilter("error")
-            assertRaisesRegex = (getattr(self, "assertRaisesRegex", None) or
-                                 getattr(self, "assertRaisesRegexp"))
-            assertRaisesRegex(UserWarning,
-                              "BlueberryPy email configuration is empty.",
-                              callable_obj=BlueberryPyConfiguration,
-                              app_config=app_config)
+            with self.assertRaisesUserWarningRegex(
+                "BlueberryPy email configuration is empty."):
+                    BlueberryPyConfiguration(app_config=app_config)
 
         app_config.update({"email": {"debug": 1}})
         with warnings.catch_warnings(record=True):
             warnings.simplefilter("error")
-            assertRaisesRegex = (getattr(self, "assertRaisesRegex", None) or
-                                 getattr(self, "assertRaisesRegexp"))
-            assertRaisesRegex(UserWarning,
-                              "Unknown key 'debug' found for \[email\]. Did you mean 'debuglevel'?",
-                              callable_obj=BlueberryPyConfiguration,
-                              app_config=app_config)
+            with self.assertRaisesUserWarningRegex(
+                "Unknown key 'debug' found for \[email\]. "
+                "Did you mean 'debuglevel'?"):
+                    BlueberryPyConfiguration(app_config=app_config)
 
         app_config.update({"email": {"host": "localhost",
                                      "port": 1025}})
@@ -245,12 +251,9 @@ class BlueberryPyConfigurationTest(unittest.TestCase):
         app_config = {"controllers": {"": {"controller": Root}}}
         with warnings.catch_warnings(record=True):
             warnings.simplefilter("error")
-            assertRaisesRegex = (getattr(self, "assertRaisesRegex", None) or
-                                 getattr(self, "assertRaisesRegexp"))
-            assertRaisesRegex(UserWarning,
-                              "Controller '' has no exposed method\.",
-                              callable_obj=BlueberryPyConfiguration,
-                              app_config=app_config)
+            with self.assertRaisesUserWarningRegex(
+                "Controller '' has no exposed method\."):
+                    BlueberryPyConfiguration(app_config=app_config)
 
         class Root(object):
             def index(self):
@@ -265,13 +268,9 @@ class BlueberryPyConfigurationTest(unittest.TestCase):
         app_config = {"controllers": {"/api": {"controller": rest_controller}}}
         with warnings.catch_warnings(record=True):
             warnings.simplefilter("error")
-            assertRaisesRegex = (getattr(self, "assertRaisesRegex", None) or
-                                 getattr(self, "assertRaisesRegexp"))
-
-            assertRaisesRegex(UserWarning,
-                              "Controller '/api' has no connected routes\.",
-                              callable_obj=BlueberryPyConfiguration,
-                              app_config=app_config)
+            with self.assertRaisesUserWarningRegex(
+                "Controller '/api' has no connected routes\."):
+                    BlueberryPyConfiguration(app_config=app_config)
 
         class DummyRestController(object):
             def dummy(self, **kwargs):
