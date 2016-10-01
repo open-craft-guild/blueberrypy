@@ -92,7 +92,7 @@ class BlueberryPyConfigurationTest(unittest.TestCase):
     @mock.patch('os.path.exists', get_dummy_exists([
         '/tmp/dev/app.yml', '/tmp/dev/bundles.yml', '/tmp/dev/logging.yml',
     ]))
-    @mock.patch.object(builtins.open, get_dummy_open({
+    @mock.patch.object(builtins, 'open', get_dummy_open({
         '/tmp/dev/app.yml': [
             textwrap.dedent("""
             controllers: []
@@ -294,7 +294,7 @@ class BlueberryPyConfigurationTest(unittest.TestCase):
         '/tmp/dev/app.yml', '/tmp/dev/bundles.yml', '/tmp/dev/logging.yml',
         '/tmp/dev/app.override.yml',
     ]))
-    @mock.patch.object(builtins.open, get_dummy_open({
+    @mock.patch.object(builtins, 'open', get_dummy_open({
         '/tmp/dev/app.yml': [
             textwrap.dedent("""
             controllers: []
