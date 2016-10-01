@@ -115,23 +115,13 @@ class BlueberryPyConfiguration(object):
         if app_config:
             self._app_config = dict(app_config)
 
-        # Merge JSON from environment variable
-        self._app_config = self.__class__.merge_dicts(self._app_config, ENV_CONFIG)
-
-        # Convert relative paths to absolute where needed
         try:
-            for _ in self._app_config['controllers']:
-                section = self._app_config['controllers'][_]
-                for r in section:
-                    if isinstance(section[r], dict):
-                        for __ in ['tools.staticdir.root',
-                                   'tools.staticfile.root']:
-                            pth = section[r].get(__)
-                            if pth is not None and not pth.startswith('/'):
-                                self._app_config['controllers'][_][r][__] = \
-                                    os.path.join(CWD, pth)
-        except:
-            pass
+            # Merge JSON from environment variable
+            self._app_config = self.__class__.merge_dicts(self._app_config, ENV_CONFIG)
+        except AttributeError:
+            if ENV_CONFIG:  # not an empty dict
+                self._app_config = ENV_CONFIG
+            # Don't re-raise exception, self.validate() will do this later
 
         if logging_config:
             self._logging_config = dict(logging_config)
@@ -139,7 +129,20 @@ class BlueberryPyConfiguration(object):
         if webassets_env is not None:
             self._webassets_env = webassets_env
 
-        self.validate()
+        self.validate()  # Checks that all attributes are pre-populated
+
+        # Convert relative paths to absolute where needed
+        # self.validate() will fail if there's no app_config['controllers']
+        for _ in self._app_config['controllers']:
+            section = self._app_config['controllers'][_]
+            for r in section:
+                if isinstance(section[r], dict):
+                    for __ in ['tools.staticdir.root',
+                               'tools.staticfile.root']:
+                        pth = section[r].get(__)
+                        if pth is not None and not pth.startswith('/'):
+                            self._app_config['controllers'][_][r][__] = \
+                                os.path.join(CWD, pth)
 
         if environment == "backlash":
             self.setup_backlash_environment()

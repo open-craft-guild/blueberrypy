@@ -50,9 +50,10 @@ class BlueberryPyConfigurationTest(unittest.TestCase):
                                                                 '/': {"request.dispatch": rest_controller}}}}
 
     def test_validate(self):
-        self.assertRaisesRegexp(BlueberryPyNotConfiguredError,
-                                "BlueberryPy application configuration not found.",
-                                BlueberryPyConfiguration)
+        with self.assertRaisesRegexp(
+            BlueberryPyNotConfiguredError,
+            "BlueberryPy application configuration not found."):
+                BlueberryPyConfiguration()
 
     def test_config_file_paths(self):
         # stub out os.path.exists
@@ -80,7 +81,9 @@ class BlueberryPyConfigurationTest(unittest.TestCase):
 
         def proxied_open(filename, mode='r', buffering=1):
             if filename == "/tmp/dev/app.yml":
-                return FakeFile()
+                return FakeFile(textwrap.dedent("""
+                controllers: []
+                """))
             elif filename == "/tmp/dev/bundles.yml":
                 return FakeFile(textwrap.dedent("""
                 directory: /tmp
