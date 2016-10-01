@@ -1,0 +1,32 @@
+# Project specific generated files
+test.cfg
+doc/_build
+.coverage
+cover
+.tox
+
+# Python temp files
+*.pyc
+*.pyo
+*.egg-info
+EGG-INFO
+*.egg
+
+# Editor generated metadata files
+.ropeproject
+.project
+.pydevproject
+.settings
+bpython.desktop
+*sublime-*
+
+# virtualenv and distutils files
+build
+temp
+dist
+MANIFEST
+.Python
+bin
+lib
+include
+man
