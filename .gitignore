@@ -30,3 +30,4 @@ bin
 lib
 include
 man
+.python-version
