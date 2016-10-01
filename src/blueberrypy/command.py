@@ -458,7 +458,7 @@ def main():
             logger.info(textwrap.dedent(doc))
             sys.exit(0)
         else:
-            logger.info(textwrap.dedent(__doc__))
+            logger.info(textwrap.dedent(main.__doc__))
             sys.exit(0)
 
         return partial(docopt, textwrap.dedent(doc)), callback
