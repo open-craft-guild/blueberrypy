@@ -1,8 +1,8 @@
 BlueberryPy
 ===========
 
-.. image:: https://travis-ci.org/wyuenho/blueberrypy.png
-    :target: https://travis-ci.org/wyuenho/blueberrypy
+.. image:: https://travis-ci.org/open-craft-guild/blueberrypy.png
+    :target: https://travis-ci.org/open-craft-guild/blueberrypy
 
 Same as CherryPy, just with a different filling.
 
@@ -39,13 +39,13 @@ you want.
 Installation
 ------------
 
-Stable version::
+Old `@wyuenho </wyuenho>`_'s version::
 
    $ pip install blueberrypy
 
-Development version::
+Development version (this fork)::
 
-   $ pip install hg+https://bitbucket.org/wyuenho/blueberrypy
+   $ pip install git+https://bitbucket.org/open-craft-guild/blueberrypy
 
 
 Note: You should probably install it inside a `virtualenv <http://www.virtualenv.org/>`_.
@@ -54,7 +54,7 @@ Note: You should probably install it inside a `virtualenv <http://www.virtualenv
 Usage
 -----
 
-Once BlueberryPy is installed, a script called `blueberrypy` should be available on
+Once BlueberryPy is installed, a script called ``blueberrypy`` should be available on
 your PATH.
 
 ::
@@ -116,9 +116,9 @@ You can install the optional speedup packages too::
 
 Or upstream::
 
-   $ pip install hg+https://bitbucket.org/wyuenho/blueberrypy#egg=speedups
+   $ pip install git+https://bitbucket.org/open-craft-guild/blueberrypy#egg=speedups
 
-Finally, you need to install a database driver such as `psycopg2`::
+Finally, you need to install a database driver such as ``psycopg2``::
 
    $ pip install psycopg2
 
@@ -126,6 +126,6 @@ Now your package is ready to be served::
 
    $ blueberrypy serve
 
-Type `http://localhost:8080` into your browser's location bar and voila!
+Type ``http://localhost:8080`` into your browser's location bar and voila!
 
 Happy coding!
