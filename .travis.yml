@@ -6,6 +6,8 @@ python:
   - 3.4
   - 3.5
 
+cache: pip
+
 addons:
   postgresql: 9.3
 
