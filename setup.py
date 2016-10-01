@@ -13,6 +13,7 @@ install_requires = ["CherryPy>=3.3",
                     "python-dateutil>=2.2"]
 
 speedup_requires = ["hiredis>=0.1.0",
+                    "m3-cdecimal>=2.3",
                     "simplejson>=3.4"]
 
 dev_requires = ["Sphinx>=1.2",
@@ -26,9 +27,6 @@ dev_requires = ["Sphinx>=1.2",
 if sys.version_info < (2, 7):
     print("blueberrypy doesn't support python <= 2.6. Sorry!", file=sys.stderr)
     sys.exit(1)
-
-if sys.version_info < (3, 3):
-    speedup_requires.append("m3-cdecimal>=2.3")
 
 readme_file = open(os.path.abspath(os.path.join(os.path.dirname(__file__), "README.rst")), "r")
 readme = readme_file.read()
