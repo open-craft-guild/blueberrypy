@@ -1,10 +1,15 @@
-import __builtin__ as builtins
+try:
+    import builtins
+except ImportError:
+    import __builtin__ as builtins
+
 import textwrap
 import unittest
 import warnings
 
 from functools import partial
 from StringIO import StringIO
+
 try:
     from unittest import mock
 except ImportError:
