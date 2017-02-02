@@ -67,7 +67,7 @@ class BlueberryPyConfiguration(object):
 
         CWD = os.getcwdu() if getattr(os, "getcwdu", None) else os.getcwd()
 
-        if ENV_CONFIG.get('global') and ENV_CONFIG['global'].get('CWD') and \
+        if ENV_CONFIG.get('global', {}).get('CWD') and \
                 os.path.isdir(
                     os.path.join(ENV_CONFIG['global']['CWD'], 'src')):
             CWD = ENV_CONFIG['global']['CWD']
