@@ -16,7 +16,7 @@ services:
   - redis-server
 
 install:
-  - pip install --allow-external cdecimal --no-use-wheel -e .[all,speedups,dev]
+  - pip install tox
   - psql --command="CREATE ROLE tester PASSWORD 'tester' INHERIT LOGIN;" --username=postgres
   - createdb --encoding=UTF-8 --username=postgres --owner=tester test_blueberrypy
   - psql --command='CREATE EXTENSION postgis;' --dbname=test_blueberrypy --username=postgres
