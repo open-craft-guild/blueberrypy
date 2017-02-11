@@ -21,9 +21,7 @@ install:
   - psql --command='CREATE EXTENSION postgis;' --dbname=test_blueberrypy --username=postgres
   - psql --command='CREATE EXTENSION postgis_topology;' --dbname=test_blueberrypy --username=postgres
 
-before_script: export TOX_PY_VERSION="py$(echo $TRAVIS_PYTHON_VERSION | sed 's/\.//g')"
-
-script: tox -e "${TOX_PY_VERSION}"
+script: tox
 
 notifications:
   email: true
