@@ -167,7 +167,7 @@ class BlueberryPyConfiguration(object):
         for handler_name, handler_config in self._logging_config.get('handlers', {}).viewitems():
             pth = handler_config.get('filename')
             if pth is not None and not pth.startswith('/'):
-                self._logging_config[handler_name]['filename'] = \
+                self._logging_config['handlers'][handler_name]['filename'] = \
                     os.path.join(CWD, pth)
 
         if environment == "backlash":
