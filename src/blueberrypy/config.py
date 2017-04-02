@@ -162,6 +162,14 @@ class BlueberryPyConfiguration(object):
                             self._app_config['controllers'][_][r][__] = \
                                 os.path.join(CWD, pth)
 
+        # Convert relative paths of logs in handlers
+        # self.validate() will fail if there's no self._logging_config
+        for handler_name, handler_config in self._logging_config.get('handlers', {}).viewitems():
+            pth = handler_config.get('filename')
+            if pth is not None and not pth.startswith('/'):
+                self._logging_config[handler_name]['filename'] = \
+                    os.path.join(CWD, pth)
+
         if environment == "backlash":
             self.setup_backlash_environment()
 
