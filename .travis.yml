@@ -19,6 +19,9 @@ matrix:
     - python: pypy
     - python: pypy3
 
+env:
+  BLUEBERRYPY_CONFIG: '{}'
+
 cache: pip
 
 addons:
