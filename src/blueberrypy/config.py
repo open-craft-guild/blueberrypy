@@ -373,7 +373,7 @@ class BlueberryPyConfiguration(object):
             logger.error('${} is not a valid JSON string!'
                          .format(env_var_name))
         except TypeError:
-            logger.error('${} environment variable is not set!'
+            logger.warning('${} environment variable is not set!'
                          .format(env_var_name))
         except:
             logger.exception('Could not parse ${} environment variable for an '
