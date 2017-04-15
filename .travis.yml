@@ -31,7 +31,7 @@ services:
   - redis-server
 
 before_install:
-  - pip install --upgrade setuptools
+  - pip install --upgrade setuptools pip
 install:
   - pip install --allow-external cdecimal --no-use-wheel -e .[all,speedups,dev]
   - psql --command="CREATE ROLE tester PASSWORD 'tester' INHERIT LOGIN;" --username=postgres
