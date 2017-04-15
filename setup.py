@@ -16,8 +16,8 @@ speedup_requires = ["hiredis>=0.1.0",
                     "m3-cdecimal>=2.3",
                     "simplejson>=3.4"]
 
-dev_requires = ["Sphinx>=1.2 ; python_version != 3.3",
-                "Sphinx<1.5  ; python_version == 3.3",
+dev_requires = ["Sphinx>=1.2" if sys.version_info[:2] != (3, 3)
+                else "Sphinx<1.5",
                 "nose>=1.3",
                 "nose-testconfig>=0.9",
                 "coverage>=3.7",
