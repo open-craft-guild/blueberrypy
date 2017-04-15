@@ -14,7 +14,6 @@ matrix:
   fast_finish: true
   include:
     - python: 3.3
-      env: PIP_CONSTRAINTS='-c Sphinx<1.5'
   allow_failures:
     - python: 3.6-dev
     - python: nightly
@@ -35,7 +34,7 @@ services:
 before_install:
   - pip install --upgrade setuptools pip
 install:
-  - pip install $PIP_CONSTRAINTS --allow-external cdecimal --no-use-wheel -e .[all,speedups,dev]
+  - pip install --allow-external cdecimal --no-use-wheel -e .[all,speedups,dev]
   - psql --command="CREATE ROLE tester PASSWORD 'tester' INHERIT LOGIN;" --username=postgres
   - createdb --encoding=UTF-8 --username=postgres --owner=tester test_blueberrypy
   - psql --command='CREATE EXTENSION postgis;' --dbname=test_blueberrypy --username=postgres
