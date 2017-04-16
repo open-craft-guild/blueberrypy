@@ -43,17 +43,25 @@ from blueberrypy import email
 from blueberrypy.email import Mailer
 
 
-class MailerTest(unittest.TestCase):
+class BaseEmailTestCase(unittest.TestCase):
 
     def setUp(self):
-        self.controller = QueueController("localhost", 9025)
+        self.controller = QueueController('localhost', 9025)
         self.controller.start()
+
+        self._smtp_host = self.controller.server.host
+        self._smtp_port = self.controller.server.port
 
     def tearDown(self):
         self.controller.stop()
+        del self._smtp_host
+        del self._smtp_port
+
+
+class MailerTest(BaseEmailTestCase):
 
     def test_send_email(self):
-        mailer = Mailer("localhost", 9025)
+        mailer = Mailer(self._smtp_host, self._smtp_port)
         body = "This is the bloody test body"
         mailer.send_email("rcpt@example.com", "from@example.com", "test subject", body)
 
@@ -69,7 +77,7 @@ class MailerTest(unittest.TestCase):
                                        message.get_content_charset()))
 
     def test_send_html_email(self):
-        mailer = Mailer("localhost", 9025)
+        mailer = Mailer(self._smtp_host, self._smtp_port)
         text = u"This is the bloody test body"
         html = u"<p>This is the bloody test body</p>"
         mailer.send_html_email("rcpt@example.com", "from@example.com", "test subject", text, html)
@@ -90,14 +98,7 @@ class MailerTest(unittest.TestCase):
         self.assertEqual("text/html", message.get_payload(1).get_content_type())
 
 
-class EmailModuleFuncTest(unittest.TestCase):
-
-    def setUp(self):
-        self.controller = QueueController("localhost", 9025)
-        self.controller.start()
-
-    def tearDown(self):
-        self.controller.stop()
+class EmailModuleFuncTest(BaseEmailTestCase):
 
     def test_warnings(self):
 
@@ -111,8 +112,8 @@ class EmailModuleFuncTest(unittest.TestCase):
                               "from@example.com", "test subject", "plain body", "<p>html body</p>")
 
     def test_send_email(self):
-        email.configure({"host": "localhost",
-                         "port": 9025})
+        email.configure({"host": self._smtp_host,
+                         "port": self._smtp_port})
 
         body = "This is the bloody test body"
         email.send_email("rcpt@example.com", "from@example.com", "test subject", body)
@@ -129,8 +130,8 @@ class EmailModuleFuncTest(unittest.TestCase):
                                        message.get_content_charset()))
 
     def test_send_html_email(self):
-        email.configure({"host": "localhost",
-                         "port": 9025})
+        email.configure({"host": self._smtp_host,
+                         "port": self._smtp_port})
 
         text = u"This is the bloody test body"
         html = u"<p>This is the bloody test body</p>"
