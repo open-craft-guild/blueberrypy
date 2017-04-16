@@ -21,7 +21,7 @@ try:
 
         def start(self):
             super().start()
-            host, port, *_ = self.server.sockets[0].getsockname()
+            host, port, _, _ = self.server.sockets[0].getsockname()
             setattr(self.server, 'host', host)
             setattr(self.server, 'port', port)
 
