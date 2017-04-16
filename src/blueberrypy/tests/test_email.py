@@ -7,7 +7,7 @@ try:
     from aiosmtpd.controller import Controller  # importing third-party package
     from aiosmtpd.handlers import Mailbox       # first to get ImportError early
 
-    import os
+    import os.path
 
     from mailbox import Maildir
     from operator import itemgetter
@@ -16,8 +16,10 @@ try:
     class QueueController(Controller):
         def __init__(self, host, port):
             self._tmp_dir = TemporaryDirectory()
-            os.rmdir(self._tmp_dir.name)
-            super().__init__(handler=Mailbox(self._tmp_dir.name), hostname=host, port=port)
+            super().__init__(
+                handler=Mailbox(os.path.join(self._tmp_dir.name, 'mailbox')),
+                hostname=host, port=port
+            )
 
         def start(self):
             super().start()
