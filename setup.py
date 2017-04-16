@@ -23,7 +23,7 @@ dev_requires = ["Sphinx>=1.2" if sys.version_info[:2] != (3, 3)
                 "coverage>=3.7",
                 "flexmock>=0.9.7",
                 "lazr.smtptest>=2.0" if sys.version_info < (3, 5)
-                else "aiosmtpd>=1.0",
+                else "aiosmtpd>=1.0a5",
                 "tox>=1.7"]
 
 if sys.version_info < (2, 7):
