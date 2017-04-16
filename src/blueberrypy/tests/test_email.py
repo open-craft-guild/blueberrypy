@@ -37,6 +37,8 @@ try:
 except ImportError:
     from lazr.smtptest.controller import QueueController
 
+from six import text_type
+
 from blueberrypy import email
 from blueberrypy.email import Mailer
 
@@ -63,7 +65,7 @@ class MailerTest(unittest.TestCase):
         self.assertEqual("from@example.com", from_str)
         self.assertEqual("rcpt@example.com", to_str)
         self.assertEqual("test subject", subject_str)
-        self.assertEqual(body, unicode(message.get_payload(decode=True),
+        self.assertEqual(body, text_type(message.get_payload(decode=True),
                                        message.get_content_charset()))
 
     def test_send_html_email(self):
@@ -80,10 +82,10 @@ class MailerTest(unittest.TestCase):
         self.assertEqual("from@example.com", from_str)
         self.assertEqual("rcpt@example.com", to_str)
         self.assertEqual("test subject", subject_str)
-        self.assertEqual(text, unicode(message.get_payload(0).get_payload(decode=True),
+        self.assertEqual(text, text_type(message.get_payload(0).get_payload(decode=True),
                                        message.get_payload(0).get_content_charset()))
         self.assertEqual("text/plain", message.get_payload(0).get_content_type())
-        self.assertEqual(html, unicode(message.get_payload(1).get_payload(decode=True),
+        self.assertEqual(html, text_type(message.get_payload(1).get_payload(decode=True),
                                        message.get_payload(1).get_content_charset()))
         self.assertEqual("text/html", message.get_payload(1).get_content_type())
 
@@ -123,7 +125,7 @@ class EmailModuleFuncTest(unittest.TestCase):
         self.assertEqual("from@example.com", from_str)
         self.assertEqual("rcpt@example.com", to_str)
         self.assertEqual("test subject", subject_str)
-        self.assertEqual(body, unicode(message.get_payload(decode=True),
+        self.assertEqual(body, text_type(message.get_payload(decode=True),
                                        message.get_content_charset()))
 
     def test_send_html_email(self):
@@ -142,9 +144,9 @@ class EmailModuleFuncTest(unittest.TestCase):
         self.assertEqual("from@example.com", from_str)
         self.assertEqual("rcpt@example.com", to_str)
         self.assertEqual("test subject", subject_str)
-        self.assertEqual(text, unicode(message.get_payload(0).get_payload(decode=True),
+        self.assertEqual(text, text_type(message.get_payload(0).get_payload(decode=True),
                                        message.get_payload(0).get_content_charset()))
         self.assertEqual("text/plain", message.get_payload(0).get_content_type())
-        self.assertEqual(html, unicode(message.get_payload(1).get_payload(decode=True),
+        self.assertEqual(html, text_type(message.get_payload(1).get_payload(decode=True),
                                        message.get_payload(1).get_content_charset()))
         self.assertEqual("text/html", message.get_payload(1).get_content_type())
