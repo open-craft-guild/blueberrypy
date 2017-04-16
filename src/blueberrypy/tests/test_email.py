@@ -3,7 +3,39 @@ import warnings
 
 from email.header import decode_header
 
-from lazr.smtptest.controller import QueueController
+try:
+    from aiosmtpd.controller import Controller  # importing third-party package
+    from aiosmtpd.handlers import Mailbox       # first to get ImportError early
+
+    import os
+
+    from mailbox import Maildir
+    from operator import itemgetter
+    from tempfile import TemporaryDirectory
+
+    class QueueController(Controller):
+        def __init__(self, host, port):
+            self._tmp_dir = TemporaryDirectory()
+            os.rmdir(self._tmp_dir.name)
+            super().__init__(handler=Mailbox(self._tmp_dir.name), hostname=host, port=port)
+
+        def start(self):
+            super().start()
+            host, port, *_ = self.server.sockets[0].getsockname()
+            setattr(self.server, 'host', host)
+            setattr(self.server, 'port', port)
+
+        def stop(self):
+            super().stop()
+            self._tmp_dir.cleanup()
+
+        def __del__(self):
+            del self._tmp_dir
+
+        def __iter__(self):
+            return iter(sorted(self.handler.mailbox, key=itemgetter('message-id')))
+except ImportError:
+    from lazr.smtptest.controller import QueueController
 
 from blueberrypy import email
 from blueberrypy.email import Mailer
