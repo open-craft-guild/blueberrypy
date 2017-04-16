@@ -404,7 +404,7 @@ class CSRFToken(object):
     def __eq__(self, other):
         return self.verify(other)
 
-    def _ne__(self, other):
+    def __ne__(self, other):
         return not self == other
 
     def __str__(self):
