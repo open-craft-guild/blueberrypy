@@ -14,6 +14,7 @@ from cherrypy.process.plugins import Daemonizer, DropPrivileges, PIDFile
 
 import blueberrypy
 from blueberrypy.config import BlueberryPyConfiguration
+from blueberrypy.ishell import IShell
 from blueberrypy.project import create_project
 from blueberrypy.console import Console
 from blueberrypy.template_engine import configure_jinja2
@@ -404,6 +405,43 @@ def console(**kwargs):
                                  )).interact(banner)
 
 
+def ishell(**kwargs):
+    """
+    An IPYTHON REPL fully configured for experimentation.
+
+    usage:
+        blueberrypy ishell [options]
+
+    options:
+        -e ENVIRONMENT, --environment=ENVIRONMENT  apply the given config environment
+        -C ENV_VAR_NAME, --env-var ENV_VAR_NAME    add the given config from environment variable name
+                                                   [default: BLUEBERRYPY_CONFIG]
+        -h, --help                                 show this help message and exit    """
+
+    banner = """
+*****************************************************************************
+* If the configuration file you specified contains a [sqlalchemy_engine*]   *
+* section, a default SQLAlchemy engine and session should have been created *
+* for you automatically already.                                            *
+* Additionally all modules from your application package have been loaded   *
+* to globals()                                                              *
+*****************************************************************************
+"""
+
+    environment = kwargs.get("environment")
+    config_dir = kwargs.get("config_dir")
+    environment and cherrypy.config.update({"environment": environment})
+    configuration = BlueberryPyConfiguration(
+        config_dir=config_dir,
+        environment=environment,
+        env_var_name=kwargs.get('env_var'),
+    )
+    shell = IShell(configuration)
+    shell.show_banner(banner)
+    shell.mainloop()
+
+
+
 def main():
     """
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -445,6 +483,8 @@ def main():
             doc, callback = create.__doc__, create
         elif command == "console":
             doc, callback = console.__doc__, console
+        elif command == "ishell":
+            doc, callback = ishell.__doc__, ishell
         elif command == "bundle":
             doc, callback = bundle.__doc__, bundle
         elif command == "serve":
