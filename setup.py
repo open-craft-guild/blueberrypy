@@ -13,8 +13,10 @@ install_requires = ["CherryPy>=3.3",
                     "python-dateutil>=2.2"]
 
 speedup_requires = ["hiredis>=0.1.0",
-                    "m3-cdecimal>=2.3",
                     "simplejson>=3.4"]
+
+if sys.version_info < (3, 3):
+    speedup_requires.append("m3-cdecimal>=2.3")
 
 dev_requires = ["Sphinx>=1.2" if sys.version_info[:2] != (3, 3)
                 else "Sphinx<1.5",
