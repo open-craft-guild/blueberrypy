@@ -34,6 +34,32 @@ logger = logging.getLogger(__name__)
 
 class BlueberryPyConfiguration(object):
 
+    class _YAMLLoader(Loader):
+        """YAML loader supporting additional tags."""
+
+        def __init__(self, *args, **kwargs):
+            super(_YAMLLoader, self).__init__(*args, **kwargs)
+            self._setup_loader()
+
+        def register_tag(self, tag, callback):
+            yaml.add_constructor(tag, callback, Loader=self)
+
+        def _tag_env_var(self, loader, node):
+            env_var_name = loader.construct_scalar(node)
+            return os.getenv(env_var_name)
+
+        def _tag_first_of(self, loader, node):
+            seq = loader.construct_sequence(node)
+            for v in seq:
+                if v is not None:
+                    return v
+
+            raise yaml.YAMLError('At least one of values passed to !FirstOf tag must be not None')
+
+        def _setup_loader(self):
+            self.register_tag('!EnvVar', self._tag_env_var)
+            self.register_tag('!FirstOf', self._tag_first_of)
+
     def __init__(self, config_dir=None, app_config=None, logging_config=None,
                  webassets_env=None, environment=None,
                  env_var_name='BLUEBERRYPY_CONFIG'):
@@ -108,14 +134,14 @@ class BlueberryPyConfiguration(object):
 
         if "app_yml" in config_file_paths and not app_config:
             with open(config_file_paths["app_yml"]) as app_yml:
-                self._app_config = load(app_yml, Loader)
+                self._app_config = load(app_yml, self._YAMLLoader)
 
             # If the overrides file exists, override the app config values
             # with ones from app.override.yml
             if "app_override_yml" in config_file_paths:
                 app_override_config = {}
                 with open(config_file_paths["app_override_yml"]) as app_override_yml:
-                    app_override_config = load(app_override_yml, Loader)
+                    app_override_config = load(app_override_yml, self._YAMLLoader)
 
                 self._app_config = self.__class__.merge_dicts(
                     self._app_config, 
@@ -124,7 +150,7 @@ class BlueberryPyConfiguration(object):
 
         if "logging_yml" in config_file_paths and not logging_config:
             with open(config_file_paths["logging_yml"]) as logging_yml:
-                self._logging_config = load(logging_yml, Loader)
+                self._logging_config = load(logging_yml, self._YAMLLoader)
 
         if "bundles_yml" in config_file_paths and not webassets_env:
             from webassets.loaders import YAMLLoader
