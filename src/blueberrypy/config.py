@@ -9,6 +9,7 @@ import importlib
 
 import cherrypy
 
+import yaml
 from yaml import load
 try:
     from yaml import CLoader as Loader
@@ -38,7 +39,7 @@ class BlueberryPyConfiguration(object):
         """YAML loader supporting additional tags."""
 
         def __init__(self, *args, **kwargs):
-            super(_YAMLLoader, self).__init__(*args, **kwargs)
+            super(BlueberryPyConfiguration._YAMLLoader, self).__init__(*args, **kwargs)
             self._setup_loader()
 
         def register_tag(self, tag, callback):
