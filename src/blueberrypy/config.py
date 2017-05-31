@@ -42,7 +42,7 @@ class BlueberryPyConfiguration(object):
             self._setup_loader()
 
         def register_tag(self, tag, callback):
-            yaml.add_constructor(tag, callback, Loader=self)
+            yaml.add_constructor(tag, callback, Loader=self.__class__)
 
         def _tag_env_var(self, loader, node):
             env_var_name = loader.construct_scalar(node)
