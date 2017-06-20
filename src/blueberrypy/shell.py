@@ -1,9 +1,7 @@
 import atexit
 import importlib
 
-from sqlalchemy.orm.session import sessionmaker
 from blueberrypy.config import BlueberryPyConfiguration
-from sqlalchemy.engine import engine_from_config
 
 
 def get_user_namespace(config, include_pkg=False):
@@ -27,6 +25,7 @@ def get_user_namespace(config, include_pkg=False):
     ns['blueberrypy'] = importlib.import_module("blueberrypy")
 
     if config.use_sqlalchemy:
+        from sqlalchemy.orm.session import sessionmaker
         engine = _make_sa_engine(config)
         if isinstance(engine, dict):
             Session = sessionmaker(twophase=True)
@@ -51,6 +50,7 @@ def get_package_name(config):
 
 
 def _make_sa_engine(config):
+    from sqlalchemy.engine import engine_from_config
     sa_prefix = 'sqlalchemy_engine'
     sa_config = config.sqlalchemy_config
 
