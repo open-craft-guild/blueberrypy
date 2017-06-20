@@ -11,7 +11,6 @@ from functools import partial
 from code import InteractiveConsole
 
 import cherrypy
-from IPython.terminal.interactiveshell import TerminalInteractiveShell
 from docopt import docopt
 from cherrypy.process import servers
 from cherrypy.process.plugins import Daemonizer, DropPrivileges, PIDFile
@@ -412,6 +411,12 @@ def console(**kwargs):
     package_name = shell.get_package_name(configuration)
 
     if use_ipython:
+        try:
+            from IPython.terminal.interactiveshell import TerminalInteractiveShell
+        except ImportError as e:
+            print(e)
+            print("""Cannot import iPython. Did you install it?""")
+            return
         try:
             app_package = import_module(package_name)
         except ImportError as e:

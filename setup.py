@@ -10,10 +10,7 @@ install_requires = ["CherryPy>=3.3",
                     "docopt>=0.6",
                     "Jinja2>=2.7",
                     "PyYAML>=3.10",
-                    "python-dateutil>=2.2",
-                    # IPython dependencies:
-                    "ipython==5.3.0" if sys.version_info < (3, 3)
-                    else "ipython==6.0.0"]
+                    "python-dateutil>=2.2"]
 
 speedup_requires = ["hiredis>=0.1.0",
                     "simplejson>=3.4"]
@@ -78,7 +75,10 @@ setup(name="blueberrypy",
                               "Routes>=2.0",
                               "backlash>=0.0.5",
                               "Shapely>=1.2",
-                              "GeoAlchemy2>=0.2.4"],
+                              "GeoAlchemy2>=0.2.4",
+                              "ipython<=5.3.0" if sys.version_info < (3, 3) else "ipython>=6.0.0"],
                       "geospatial": ["Shapely>=1.3",
                                      "GeoAlchemy2>=0.2.4"],
+                      "ipython": ["ipython<=5.3.0" if sys.version_info < (3, 3)
+                                  else "ipython>=6.0.0"],
                       "dev": dev_requires})
