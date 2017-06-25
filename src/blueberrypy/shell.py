@@ -5,7 +5,15 @@ from blueberrypy.config import BlueberryPyConfiguration
 
 
 def get_user_namespace(config, include_pkg=False):
-    assert isinstance(config, BlueberryPyConfiguration), type(config)
+    if not isinstance(config, BlueberryPyConfiguration):
+        raise TypeError(
+            'Expected config to be {expected_type}, '
+            'but got {actual_type}'
+            .format(
+                expected_type=BlueberryPyConfiguration,
+                actual_type=type(config),
+            )
+        )
 
     ns = {'__name__': 'blueberrypy-shell'}
 
