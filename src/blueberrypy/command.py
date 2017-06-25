@@ -16,7 +16,7 @@ from cherrypy.process import servers
 from cherrypy.process.plugins import Daemonizer, DropPrivileges, PIDFile
 
 import blueberrypy
-import blueberrypy.shell as shell
+from blueberrypy import shell
 
 from blueberrypy.config import BlueberryPyConfiguration
 from blueberrypy.project import create_project
