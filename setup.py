@@ -28,6 +28,19 @@ dev_requires = ["Sphinx>=1.2" if sys.version_info[:2] != (3, 3)
                 else "aiosmtpd>=1.0a5",
                 "tox>=1.7"]
 
+geospatial_requires = ["Shapely>=1.3",
+                       "GeoAlchemy2>=0.2.4"]
+
+ipython_requires = ["ipython<=5.3.0" if sys.version_info < (3, 3)
+                    else "ipython>=6.0.0"]
+
+generic_requires = ["SQLAlchemy>=0.9",
+                    "redis>=2.9",
+                    "webassets>=0.9",
+                    "Routes>=2.0",
+                    "backlash>=0.0.5"]
+
+
 if sys.version_info < (2, 7):
     print("blueberrypy doesn't support python <= 2.6. Sorry!", file=sys.stderr)
     sys.exit(1)
@@ -69,16 +82,9 @@ setup(name="blueberrypy",
       zip_safe=False,
       install_requires=install_requires,
       extras_require={"speedups": speedup_requires,
-                      "all": ["SQLAlchemy>=0.9",
-                              "redis>=2.9",
-                              "webassets>=0.9",
-                              "Routes>=2.0",
-                              "backlash>=0.0.5",
-                              "Shapely>=1.2",
-                              "GeoAlchemy2>=0.2.4",
-                              "ipython<=5.3.0" if sys.version_info < (3, 3) else "ipython>=6.0.0"],
-                      "geospatial": ["Shapely>=1.3",
-                                     "GeoAlchemy2>=0.2.4"],
-                      "ipython": ["ipython<=5.3.0" if sys.version_info < (3, 3)
-                                  else "ipython>=6.0.0"],
+                      "all": (generic_requires
+                             + geospatial_requires
+                             + ipython_requires),
+                      "geospatial": geospatial_requires,
+                      "ipython": ipython_requires,
                       "dev": dev_requires})
