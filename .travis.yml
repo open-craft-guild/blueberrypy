@@ -30,6 +30,9 @@ _base_envs:
       - libssl-dev
       - zlib1g-dev
       - libbz2-dev
+      - libgeos-c1
+      - libgeos-devel
+      - libgeos
       - libreadline-dev
       - libsqlite3-dev
       - wget
