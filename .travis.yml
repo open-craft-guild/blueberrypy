@@ -15,8 +15,6 @@ _base_envs:
 - &linux_base
   os: linux
   sudo: false
-- &addons_base
-  postgresql: 9.3
 - &pyenv_base
   <<: *stage_test
   language: generic
@@ -25,7 +23,6 @@ _base_envs:
   sudo: required
   group: edge
   addons:
-    <<: *addons_base
     apt:
       packages:
       - make
@@ -43,6 +40,8 @@ _base_envs:
       - libncursesw5-dev
       - xz-utils
       - tk-dev
+      - postgresql-9.3
+      - redis-server
   env:
   - PYTHON_VERSION=pypy2-5.7.1
   - &env_pyenv PYENV_ROOT="$HOME/.pyenv"
@@ -93,7 +92,7 @@ env:
 cache: pip
 
 addons:
-  <<: *addons_base
+  postgresql: 9.3
 
 services:
   - postgresql
