@@ -40,8 +40,6 @@ _base_envs:
       - libncursesw5-dev
       - xz-utils
       - tk-dev
-      - postgresql-9.3
-      - redis-server
   env:
   - PYTHON_VERSION=pypy2-5.7.1
   - &env_pyenv PYENV_ROOT="$HOME/.pyenv"
@@ -90,9 +88,6 @@ env:
   BLUEBERRYPY_CONFIG: '{}'
 
 cache: pip
-
-addons:
-  postgresql: 9.3
 
 services:
   - postgresql
