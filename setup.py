@@ -6,7 +6,7 @@ import sys
 from setuptools import setup, find_packages
 
 
-install_requires = ["CherryPy>=3.3",
+install_requires = ["CherryPy[testing]>=8.3",
                     "docopt>=0.6",
                     "Jinja2>=2.7",
                     "PyYAML>=3.10",
