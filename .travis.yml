@@ -1,5 +1,9 @@
-language: python
+os: linux
+dist: trusty
+sudo: false
+group: edge
 
+language: python
 python:
   - 2.7
   - 3.3
@@ -8,83 +12,15 @@ python:
   - 3.6
   - 3.6-dev
   - nightly # == 3.7-dev
+  - &pypy2 pypy2.7-5.8.0
+  - &pypy3 pypy3.5-5.8.0
 
-_base_envs:
-- &stage_test
-  stage: test
-- &linux_base
-  os: linux
-  sudo: false
-- &pyenv_base
-  <<: *stage_test
-  language: generic
-  python: pypy
-  dist: trusty
-  sudo: required
-  group: edge
-  addons:
-    postgresql: 9.6
-    apt:
-      packages:
-      - make
-      - build-essential
-      - libssl-dev
-      - zlib1g-dev
-      - libbz2-dev
-      - libgeos-c1
-      - libreadline-dev
-      - libsqlite3-dev
-      - wget
-      - curl
-      - llvm
-      - libncurses5-dev
-      - libncursesw5-dev
-      - xz-utils
-      - tk-dev
-      - postgresql-9.6-postgis-2.3
-  env:
-  - PYTHON_VERSION=pypy2-5.7.1
-  - &env_pyenv PYENV_ROOT="$HOME/.pyenv"
-  - &env_path PATH="$PYENV_ROOT/bin:$PATH"
-  before_install:
-  - &ensure_pyenv_installed |
-    if [ -f "$PYENV_ROOT/bin/pyenv" ]
-    then
-      eval "$(pyenv init -)"
-      eval "$(pyenv virtualenv-init -)"
-      pyenv update
-    else
-      rm -rf "$PYENV_ROOT"
-      curl -L https://raw.githubusercontent.com/pyenv/pyenv-installer/master/bin/pyenv-installer | bash
-      eval "$(pyenv init -)"
-      eval "$(pyenv virtualenv-init -)"
-    fi
-  - &install_python pyenv install --skip-existing --keep --verbose "$PYTHON_VERSION"
-  - &switch_python pyenv shell "$PYTHON_VERSION"
-  - &python_version python --version
-- &linux_python_base
-  <<: *linux_base
-  <<: *pyenv_base
-
-matrix:
+jobs:
   fast_finish: true
   allow_failures:
     - python: nightly
-    - python: pypy
-    - python: pypy3
-  include:
-  - <<: *linux_python_base
-    python: pypy
-    env:
-    - PYTHON_VERSION=pypy2-5.7.1
-    - *env_pyenv
-    - *env_path
-  - <<: *linux_python_base
-    python: pypy3
-    env:
-    - PYTHON_VERSION=pypy3.5-5.7.1-beta
-    - *env_pyenv
-    - *env_path
+    - python: *pypy2
+    - python: *pypy3
 
 env:
   BLUEBERRYPY_CONFIG: '{}'
