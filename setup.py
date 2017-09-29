@@ -18,16 +18,23 @@ speedup_requires = ["hiredis>=0.1.0",
 if sys.version_info < (3, 3) and not (sys.version_info < (3, 0, 0) and 'PyPy' in sys.version.split('\n')[-1]):
     speedup_requires.append("m3-cdecimal>=2.3")
 
-dev_requires = ["Sphinx>=1.2" if sys.version_info[:2] != (3, 3)
-                else "Sphinx<1.5",
+tests_require = [
                 "nose>=1.3",
                 "nose-testconfig>=0.9",
+                "openstack.nose-plugin",
                 "coverage>=3.7",
                 "flexmock>=0.9.7",
-                "mock; python_version < 3.0",
-                "lazr.smtptest>=2.0" if sys.version_info < (3, 5)
+                "mock ; python_version < 3.0",
+                "lazr.smtptest>=2.0"
+                if sys.version_info < (3, 5)
                 else "aiosmtpd>=1.0a5",
-                "tox>=1.7"]
+                "tox>=1.7",
+]
+
+docs_require = ["Sphinx>=1.2" if sys.version_info[:2] != (3, 3)
+                else "Sphinx<1.5"]
+
+dev_requires = tests_require + docs_require
 
 geospatial_requires = ["Shapely>=1.3",
                        "GeoAlchemy2>=0.2.4"]
@@ -82,10 +89,13 @@ setup(name="blueberrypy",
       entry_points={"console_scripts": ["blueberrypy = blueberrypy.command:main"]},
       zip_safe=False,
       install_requires=install_requires,
+      tests_require=tests_require,
       extras_require={"speedups": speedup_requires,
                       "all": (generic_requires
                              + geospatial_requires
                              + ipython_requires),
                       "geospatial": geospatial_requires,
                       "ipython": ipython_requires,
+                      "docs": docs_require,
+                      "testing": tests_require,
                       "dev": dev_requires})
