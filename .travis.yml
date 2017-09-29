@@ -23,6 +23,7 @@ _base_envs:
   sudo: required
   group: edge
   addons:
+    postgresql: 9.5
     apt:
       packages:
       - make
@@ -40,6 +41,7 @@ _base_envs:
       - libncursesw5-dev
       - xz-utils
       - tk-dev
+      - postgresql-9.5-postgis-2.3
   env:
   - PYTHON_VERSION=pypy2-5.7.1
   - &env_pyenv PYENV_ROOT="$HOME/.pyenv"
