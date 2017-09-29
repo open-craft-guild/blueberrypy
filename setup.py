@@ -24,12 +24,14 @@ tests_require = [
                 "openstack.nose-plugin",
                 "coverage>=3.7",
                 "flexmock>=0.9.7",
-                "mock ; python_version < 3.0",
                 "lazr.smtptest>=2.0"
                 if sys.version_info < (3, 5)
                 else "aiosmtpd>=1.0a5",
                 "tox>=1.7",
 ]
+
+if sys.version_info < (3, 0, 0):
+    tests_require += ["mock"]
 
 docs_require = ["Sphinx>=1.2" if sys.version_info[:2] != (3, 3)
                 else "Sphinx<1.5"]
