@@ -24,6 +24,7 @@ dev_requires = ["Sphinx>=1.2" if sys.version_info[:2] != (3, 3)
                 "nose-testconfig>=0.9",
                 "coverage>=3.7",
                 "flexmock>=0.9.7",
+                "mock; python_version < 3.0",
                 "lazr.smtptest>=2.0" if sys.version_info < (3, 5)
                 else "aiosmtpd>=1.0a5",
                 "tox>=1.7"]
