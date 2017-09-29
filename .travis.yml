@@ -38,17 +38,14 @@ services:
   - redis-server
 
 before_install:
-  - pip install --upgrade setuptools pip
+  - pip install --upgrade setuptools pip tox
 install:
-  - pip install --allow-external cdecimal -e .[all,speedups,dev]
   - psql --command="CREATE ROLE tester PASSWORD 'tester' INHERIT LOGIN;" --username=postgres
   - createdb --encoding=UTF-8 --username=postgres --owner=tester test_blueberrypy
   - psql --command='CREATE EXTENSION postgis;' --dbname=test_blueberrypy --username=postgres
   - psql --command='CREATE EXTENSION postgis_topology;' --dbname=test_blueberrypy --username=postgres
 
-before_script: export TOX_PY_VERSION="py$(echo $TRAVIS_PYTHON_VERSION | sed 's/\.//g' | sed 's/\-dev$//g' | sed 's/^nightly$/37/g')"
-
-script: tox -e "${TOX_PY_VERSION}"
+script: tox
 
 notifications:
   email: true
