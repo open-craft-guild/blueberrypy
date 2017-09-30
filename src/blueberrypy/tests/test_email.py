@@ -18,7 +18,8 @@ try:
             self._tmp_dir = TemporaryDirectory()
             super().__init__(
                 handler=Mailbox(os.path.join(self._tmp_dir.name, 'mailbox')),
-                hostname=host, port=port
+                hostname=host, port=port,
+                ready_timeout=5.0
             )
 
         def start(self):
