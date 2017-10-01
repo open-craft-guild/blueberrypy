@@ -17,9 +17,6 @@ python:
 
 jobs:
   fast_finish: true
-  allow_failures:
-    - python: *pypy2
-    - python: *pypy3
 
 env:
   BLUEBERRYPY_CONFIG: '{}'
