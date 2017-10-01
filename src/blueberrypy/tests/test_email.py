@@ -24,7 +24,13 @@ try:
 
         def start(self):
             super().start()
-            host, port, _, _ = self.server.sockets[0].getsockname()
+
+            sockname = self.server.sockets[0].getsockname()
+            try:
+                host, port, _, _ = sockname  # IPv4
+            except ValueError:
+                host, port = sockname  # IPv6
+
             setattr(self.server, 'host', host)
             setattr(self.server, 'port', port)
 
