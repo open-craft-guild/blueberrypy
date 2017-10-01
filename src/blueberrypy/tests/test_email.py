@@ -19,7 +19,7 @@ try:
             super().__init__(
                 handler=Mailbox(os.path.join(self._tmp_dir.name, 'mailbox')),
                 hostname=host, port=port,
-                ready_timeout=5.0
+                ready_timeout=2.0
             )
 
         def start(self):
