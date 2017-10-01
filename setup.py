@@ -38,6 +38,12 @@ docs_require = ["Sphinx>=1.2" if sys.version_info[:2] != (3, 3)
 
 dev_requires = tests_require + docs_require
 
+db_requires = [
+    'psycopg2'
+    if 'PyPy' not in sys.version.split('\n')[-1] else
+    'psycopg2cffi'
+]
+
 geospatial_requires = ["Shapely>=1.3",
                        "GeoAlchemy2>=0.2.4"]
 
@@ -97,6 +103,7 @@ setup(name="blueberrypy",
                              + geospatial_requires
                              + ipython_requires),
                       "geospatial": geospatial_requires,
+                      "db": db_requires,
                       "ipython": ipython_requires,
                       "docs": docs_require,
                       "testing": tests_require,
