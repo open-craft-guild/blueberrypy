@@ -41,7 +41,8 @@ install:
   - psql --command='CREATE EXTENSION postgis;' --dbname=test_blueberrypy --username=postgres
   - psql --command='CREATE EXTENSION postgis_topology;' --dbname=test_blueberrypy --username=postgres
 
-script: tox
+script:
+- travis_retry tox
 
 notifications:
   email: true
