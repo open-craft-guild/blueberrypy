@@ -5,8 +5,9 @@ import os.path
 import re
 import shutil
 
-from cherrypy.test.webtest import getchar
 from jinja2 import Environment as Jinja2Environment
+
+from .util import getchar
 
 
 def project_template_filter(blueberrypy_config, path):

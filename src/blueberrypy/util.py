@@ -34,7 +34,7 @@ else:
 
 
 __all__ = ["from_collection", "to_collection", "CSRFToken",
-           "pad_block_cipher_message", "unpad_block_cipher_message"]
+           "pad_block_cipher_message", "unpad_block_cipher_message", "getchar"]
 
 
 logger = logging.getLogger(__name__)
@@ -424,3 +424,31 @@ def pad_block_cipher_message(msg, block_size=16, padding='{'):
 
 def unpad_block_cipher_message(msg, padding="{"):
     return msg.rstrip(padding)
+
+
+try:
+    # Jython support
+    if sys.platform[:4] == 'java':
+        def getchar():
+            # Hopefully this is enough
+            return sys.stdin.read(1)
+    else:
+        # On Windows, msvcrt.getch reads a single char without output.
+        import msvcrt
+
+        def getchar():
+            return msvcrt.getch()
+except ImportError:
+    # Unix getchr
+    import tty
+    import termios
+
+    def getchar():
+        fd = sys.stdin.fileno()
+        old_settings = termios.tcgetattr(fd)
+        try:
+            tty.setraw(sys.stdin.fileno())
+            ch = sys.stdin.read(1)
+        finally:
+            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+        return ch
